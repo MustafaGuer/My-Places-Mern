@@ -1,6 +1,6 @@
 import React from "react";
 
-import classes from "./Card.module.scss";
+import styles from "./Card.module.scss";
 
 const Card: React.FC<{
   className?: string;
@@ -8,7 +8,7 @@ const Card: React.FC<{
   children: React.ReactNode;
 }> = (props) => {
   return (
-    <div className={`${classes.card} ${props.className}`} style={props.style}>
+    <div className={`${styles.card} ${props.className}`} style={props.style}>
       {props.children}
     </div>
   );

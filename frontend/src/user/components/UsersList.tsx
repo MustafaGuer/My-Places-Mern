@@ -1,21 +1,23 @@
 import React from "react";
 
 import UserItem from "./UserItem";
+import Card from "../../shared/components/UIElements/Card";
 import User from "../../shared/models/User";
-
-import classes from "./Users.module.scss";
+import styles from "./UsersList.module.scss";
 
 const UsersList: React.FC<{ items: Array<User> }> = (props) => {
   if (props.items.length === 0) {
     return (
       <div className="center">
-        <h2>No users found.</h2>
+        <Card>
+          <h2>No users found.</h2>
+        </Card>
       </div>
     );
   }
 
   return (
-    <ul className={classes["users-list"]}>
+    <ul className={styles["users-list"]}>
       {props.items.map((user) => {
         return (
           <UserItem
