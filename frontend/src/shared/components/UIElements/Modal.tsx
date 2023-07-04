@@ -14,10 +14,15 @@ const ModalOverlay: React.FC<{
   contentClass?: string;
   footerClass?: string;
   footer?: React.JSX.Element;
+  nodeRef?: React.MutableRefObject<null>;
   onSubmit?: () => void;
 }> = (props) => {
   const content = (
-    <div className={`${styles.modal} ${props.className}`} style={props.style}>
+    <div
+      ref={props.nodeRef}
+      className={`${styles.modal} ${props.className}`}
+      style={props.style}
+    >
       <header className={`${styles.modal__header} ${props.headerClass}`}>
         <h2>{props.header}</h2>
       </header>
@@ -50,10 +55,13 @@ const Modal: React.FC<{
   footer?: React.JSX.Element;
   children: React.ReactNode;
 }> = (props) => {
+  const nodeRef = React.useRef(null);
+
   return (
     <>
       {props.show && <Backdrop onClick={props.onCancel} />}
       <CSSTransition
+        nodeRef={nodeRef}
         in={props.show}
         mountOnEnter
         unmountOnExit
@@ -65,7 +73,7 @@ const Modal: React.FC<{
           exitActive: styles["modal-exit-active"],
         }}
       >
-        <ModalOverlay {...props} />
+        <ModalOverlay nodeRef={nodeRef} {...props} />
       </CSSTransition>
     </>
   );

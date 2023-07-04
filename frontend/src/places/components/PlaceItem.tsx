@@ -2,9 +2,10 @@ import React, { useState, useCallback } from "react";
 
 import { Coordinates } from "../../shared/models/Place";
 import Card from "../../shared/components/UIElements/Card";
-import styles from "./PlaceItem.module.scss";
 import Button from "../../shared/components/FormElements/Button";
 import Modal from "../../shared/components/UIElements/Modal";
+import Map from "../../shared/components/UIElements/Map";
+import styles from "./PlaceItem.module.scss";
 
 const PlaceItem: React.FC<{
   id: string;
@@ -32,7 +33,7 @@ const PlaceItem: React.FC<{
         footer={<Button onClick={closeMapHandler}>CLOSE</Button>}
       >
         <div className={styles["map-container"]}>
-          <h2>THE MAP!</h2>
+          <Map center={props.coordinates} zoom={16} />
         </div>
       </Modal>
       <li className={styles["place-item"]}>
