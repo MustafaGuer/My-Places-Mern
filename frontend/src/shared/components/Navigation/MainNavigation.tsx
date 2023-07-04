@@ -1,22 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import MainHeader from "./MainHeader";
 import NavLinks from "./NavLinks";
 import SideDrawer from "./SideDrawer";
-import styles from "./MainNavigation.module.scss";
 import Backdrop from "../UIElements/Backdrop";
+import styles from "./MainNavigation.module.scss";
 
 const MainNavigation: React.FC<{}> = (props) => {
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
 
-  const openDrawerHandler = () => {
-    setDrawerIsOpen(true);
-  };
+  const openDrawerHandler = useCallback(() => setDrawerIsOpen(true), []);
 
-  const closeDrawerHandler = () => {
-    setDrawerIsOpen(false);
-  };
+  const closeDrawerHandler = useCallback(() => setDrawerIsOpen(false), []);
 
   return (
     <>

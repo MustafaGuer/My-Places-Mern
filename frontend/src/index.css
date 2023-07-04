@@ -52,3 +52,25 @@ main {
 .m-0 {
   margin: 0 !important;
 }
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #ff0055 #4d4d4d;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 11px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #4d4d4d;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #ff0055;
+  border-radius: 3px;
+  border: 2px ridge #ffffff;
+}
