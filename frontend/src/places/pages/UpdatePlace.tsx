@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
@@ -12,23 +13,44 @@ import { PlaceId } from "../../shared/models/Params";
 import { DUMMY_PLACES } from "../../DUMMY_PLACES";
 
 const UpdatePlace = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const { placeId } = useParams<PlaceId>();
 
-  const place = DUMMY_PLACES.find((place) => place.id === placeId);
-
-  const [formState, inputHandler] = useForm(
+  const [formState, inputHandler, setFormData] = useForm(
     {
       title: {
-        value: place?.title as string,
-        isValid: true,
+        value: "",
+        isValid: false,
       },
       description: {
-        value: place?.description as string,
-        isValid: true,
+        value: "",
+        isValid: false,
       },
     },
     true
   );
+
+  const place = DUMMY_PLACES.find((place) => place.id === placeId);
+
+  useEffect(() => {
+    setFormData(
+      {
+        inputs: {
+          title: {
+            value: place?.title as string,
+            isValid: true,
+          },
+          description: {
+            value: place?.description as string,
+            isValid: true,
+          },
+        },
+      },
+      true
+    );
+
+    setIsLoading(false);
+  }, [setFormData, place]);
 
   const placeUpdateSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,6 +61,14 @@ const UpdatePlace = () => {
     return (
       <div className="center">
         <h2>Could not find place.</h2>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="center">
+        <h2>Loading...</h2>
       </div>
     );
   }

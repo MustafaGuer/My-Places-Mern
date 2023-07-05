@@ -14,12 +14,18 @@ type FormState = {
   isValid: boolean;
 };
 
-type FormAction = {
-  type: "INPUT_CHANGE";
-  inputId: string;
-  isValid: boolean;
-  value: string;
-};
+type FormAction =
+  | {
+      type: "INPUT_CHANGE";
+      inputId: string;
+      isValid: boolean;
+      value: string;
+    }
+  | {
+      type: "SET_DATA";
+      inputs: InputState;
+      formIsValid: boolean;
+    };
 
 const formReducer = (state: FormState, action: FormAction): FormState => {
   switch (action.type) {
@@ -43,6 +49,13 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         isValid: formIsValid,
       };
 
+    case "SET_DATA":
+      return {
+        // ...state,
+        inputs: action.inputs,
+        isValid: action.formIsValid,
+      };
+
     default:
       return state;
   }
@@ -61,11 +74,23 @@ const initialState = (
 export const useForm = (
   initialInputs: InputState,
   initialFormValidity: boolean
-): [FormState, (id: string, value: string, isValid: boolean) => void] => {
+): [
+  FormState,
+  (id: string, value: string, isValid: boolean) => void,
+  (inputData: { inputs: InputState }, formValidity: boolean) => void
+] => {
   const [formState, dispatch] = useReducer(
     formReducer,
     initialState(initialInputs, initialFormValidity)
   );
+
+  const setFormData = useCallback((inputData: any, formValidity: boolean) => {
+    dispatch({
+      type: "SET_DATA",
+      inputs: inputData.inputs,
+      formIsValid: formValidity,
+    });
+  }, []);
 
   const inputHandler = useCallback(
     (id: string, value: string, isValid: boolean) => {
@@ -79,5 +104,5 @@ export const useForm = (
     []
   );
 
-  return [formState, inputHandler];
+  return [formState, inputHandler, setFormData];
 };
