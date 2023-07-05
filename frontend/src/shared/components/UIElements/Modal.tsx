@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import { CSSTransition } from "react-transition-group";
 
@@ -30,7 +30,7 @@ const ModalOverlay: React.FC<{
         onSubmit={
           props.onSubmit
             ? props.onSubmit
-            : (event: FormEvent) => event.preventDefault
+            : (event: React.FormEvent) => event.preventDefault()
         }
       >
         <div className={`${styles.modal__content} ${props.contentClass}`}>
