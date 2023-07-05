@@ -1,22 +1,22 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 
 import { Validator, validate } from "../../util/validators";
 import styles from "./Input.module.scss";
 
-enum TYPES {
+enum ACTION_TYPES {
   CHANGE = "CHANGE",
   TOUCH = "TOUCH",
 }
 
-type ReducerAction =
+type InputAction =
   | {
-      type: TYPES.CHANGE;
+      type: ACTION_TYPES.CHANGE;
       val: string;
       validators: Validator[];
     }
-  | { type: TYPES.TOUCH };
+  | { type: ACTION_TYPES.TOUCH };
 
-type ReducerState = {
+type InputState = {
   value: string;
   isTouched: boolean;
   isValid: boolean;
@@ -28,19 +28,16 @@ const initialState = {
   isValid: false,
 };
 
-const inputReducer = (state: ReducerState, action: ReducerAction) => {
+const inputReducer = (state: InputState, action: InputAction) => {
   switch (action.type) {
-    case TYPES.CHANGE:
+    case ACTION_TYPES.CHANGE:
       return {
         ...state,
         value: action.val,
-        isValid: validate(
-          action.val as string,
-          action.validators as Validator[]
-        ),
+        isValid: validate(action.val, action.validators),
       };
 
-    case TYPES.TOUCH:
+    case ACTION_TYPES.TOUCH:
       return {
         ...state,
         isTouched: true,
@@ -56,11 +53,11 @@ type InputComponent = {
   id: string;
   element?: string;
   placeholder?: string;
-  type: string;
+  type?: string;
   rows?: number;
   errorText?: string;
   validators: Validator[];
-  onInput?: void;
+  onInput: (id: string, value: string, isValid: boolean) => void;
 };
 
 const Input: React.FC<InputComponent> = (props) => {
@@ -69,11 +66,15 @@ const Input: React.FC<InputComponent> = (props) => {
   const { id, onInput } = props;
   const { value, isValid } = inputState;
 
+  useEffect(() => {
+    onInput(id, value, isValid);
+  }, [onInput, id, value, isValid]);
+
   const changeHandler = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     dispatch({
-      type: TYPES.CHANGE,
+      type: ACTION_TYPES.CHANGE,
       val: event.target.value,
       validators: props.validators,
     });
@@ -81,7 +82,7 @@ const Input: React.FC<InputComponent> = (props) => {
 
   const touchHandler = () => {
     dispatch({
-      type: TYPES.TOUCH,
+      type: ACTION_TYPES.TOUCH,
     });
   };
 
@@ -117,7 +118,11 @@ const Input: React.FC<InputComponent> = (props) => {
     >
       <label htmlFor={props.id}>{props.label}</label>
       {element}
-      {!inputState.isValid && inputState.isTouched && <p>{props.errorText}</p>}
+      {!inputState.isValid && inputState.isTouched && (
+        <p>
+          {props.errorText ? props.errorText : "Please enter a valid input."}
+        </p>
+      )}
     </div>
   );
 };
