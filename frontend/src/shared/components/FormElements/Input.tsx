@@ -60,14 +60,14 @@ type InputComponent = {
   errorText?: string;
   validators: Validator[];
   onInput: (id: string, value: string, isValid: boolean) => void;
-  value?: string;
-  valid?: boolean;
+  initialValue?: string;
+  initialValid?: boolean;
 };
 
 const Input: React.FC<InputComponent> = (props) => {
   const [inputState, dispatch] = useReducer(
     inputReducer,
-    initialState(props.value as string, props.valid as boolean)
+    initialState(props.initialValue as string, props.initialValid as boolean)
   );
 
   const { id, onInput } = props;
