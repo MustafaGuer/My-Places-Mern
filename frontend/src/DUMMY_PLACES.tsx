@@ -13,7 +13,7 @@ export const DUMMY_PLACES: Place[] = [
   },
   {
     id: "p2",
-    title: "Empire State Building",
+    title: "Emp. State Building",
     description: "One of the most famous sky scrapers in the world!",
     address: "20 W 34th St., New York, NY 10001, United States",
     creator: "u2",
