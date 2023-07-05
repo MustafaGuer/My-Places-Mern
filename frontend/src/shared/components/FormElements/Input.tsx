@@ -22,10 +22,12 @@ type InputState = {
   isValid: boolean;
 };
 
-const initialState = {
-  value: "",
-  isTouched: false,
-  isValid: false,
+const initialState = (value: string, valid: boolean) => {
+  return {
+    value: value || "",
+    isTouched: false,
+    isValid: valid || false,
+  };
 };
 
 const inputReducer = (state: InputState, action: InputAction) => {
@@ -58,10 +60,15 @@ type InputComponent = {
   errorText?: string;
   validators: Validator[];
   onInput: (id: string, value: string, isValid: boolean) => void;
+  value?: string;
+  valid?: boolean;
 };
 
 const Input: React.FC<InputComponent> = (props) => {
-  const [inputState, dispatch] = useReducer(inputReducer, initialState);
+  const [inputState, dispatch] = useReducer(
+    inputReducer,
+    initialState(props.value as string, props.valid as boolean)
+  );
 
   const { id, onInput } = props;
   const { value, isValid } = inputState;

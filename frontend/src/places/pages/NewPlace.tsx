@@ -6,7 +6,6 @@ import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
-import styles from "./NewPlace.module.scss";
 
 type InputType = {
   value: string;
@@ -36,6 +35,10 @@ const initialState = {
       isValid: false,
     },
     description: {
+      value: "",
+      isValid: false,
+    },
+    address: {
       value: "",
       isValid: false,
     },
@@ -85,8 +88,13 @@ const NewPlace = () => {
     []
   );
 
+  const placeSubmitHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    console.log(formState.inputs);
+  };
+
   return (
-    <form className={styles["place-form"]}>
+    <form className="place-form" onSubmit={placeSubmitHandler}>
       <Input
         id="title"
         element="input"
@@ -103,6 +111,14 @@ const NewPlace = () => {
         validators={[VALIDATOR_MINLENGTH(5)]}
         onInput={inputHandler}
         errorText="Please enter a valid description (at least 5 characters)."
+      />
+      <Input
+        id="address"
+        element="input"
+        label="Address"
+        validators={[VALIDATOR_REQUIRE()]}
+        onInput={inputHandler}
+        errorText="Please enter a valid address."
       />
       <Button type="submit" disabled={!formState.isValid}>
         ADD Place
