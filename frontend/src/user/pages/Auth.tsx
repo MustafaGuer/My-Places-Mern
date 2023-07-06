@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { useForm } from "../../shared/hooks/form-hook";
+import { AuthContext, AuthContextT } from "../../shared/context/auth-context";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
@@ -12,6 +13,7 @@ import Button from "../../shared/components/FormElements/Button";
 import styles from "./Auth.module.scss";
 
 const Auth = () => {
+  const authCtx = useContext<AuthContextT>(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
 
   const [formState, inputHandler, setFormData] = useForm(
@@ -34,12 +36,12 @@ const Auth = () => {
         {
           inputs: {
             ...formState.inputs,
-            // name: { value: "", isValid: false },
-            name: undefined,
+            name: { value: "", isValid: false },
+            // name: undefined,
           },
         },
-        (formState.inputs.email?.isValid as boolean) &&
-          (formState.inputs.password?.isValid as boolean)
+        (formState.inputs.email.isValid as boolean) &&
+          (formState.inputs.password.isValid as boolean)
       );
     } else {
       setFormData(
@@ -62,6 +64,7 @@ const Auth = () => {
   const authSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     console.log(formState);
+    authCtx.login();
   };
 
   return (

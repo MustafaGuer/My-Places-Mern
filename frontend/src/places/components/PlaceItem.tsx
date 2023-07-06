@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useContext } from "react";
 
 import { Coordinates } from "../../shared/models/Place";
 import Card from "../../shared/components/UIElements/Card";
 import Button from "../../shared/components/FormElements/Button";
 import Modal from "../../shared/components/UIElements/Modal";
 import Map from "../../shared/components/UIElements/Map";
+import { AuthContext, AuthContextT } from "../../shared/context/auth-context";
 import styles from "./PlaceItem.module.scss";
 
 const PlaceItem: React.FC<{
@@ -16,6 +17,7 @@ const PlaceItem: React.FC<{
   creator: string;
   coordinates: Coordinates;
 }> = (props) => {
+  const authCtx = useContext<AuthContextT>(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -84,10 +86,14 @@ const PlaceItem: React.FC<{
             <Button onClick={openMapHandler} inverse>
               VIEW ON MAP
             </Button>
-            <Button to={`/places/${props.id}`}>EDIT</Button>
-            <Button danger onClick={showDeleteWarningHandler}>
-              DELETE
-            </Button>
+            {authCtx.isLoggedIn && (
+              <Button to={`/places/${props.id}`}>EDIT</Button>
+            )}
+            {authCtx.isLoggedIn && (
+              <Button danger onClick={showDeleteWarningHandler}>
+                DELETE
+              </Button>
+            )}
           </div>
         </Card>
       </li>

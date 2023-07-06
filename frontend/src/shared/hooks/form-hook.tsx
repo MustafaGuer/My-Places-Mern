@@ -1,11 +1,9 @@
 import { useCallback, useReducer } from "react";
 
-type InputType =
-  | {
-      value: string;
-      isValid: boolean;
-    }
-  | undefined;
+type InputType = {
+  value: string;
+  isValid: boolean;
+};
 
 type InputState = {
   [key: string]: InputType;
@@ -35,8 +33,8 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       let formIsValid = true;
 
       for (const inputId in state.inputs) {
-        if (state.inputs[inputId]) {
-          continue;
+        if (state.inputs[inputId].value === "") {
+          state.inputs[inputId].isValid = true;
         }
         if (inputId === action.inputId) {
           formIsValid = formIsValid && action.isValid;
@@ -57,7 +55,6 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
 
     case "SET_DATA":
       return {
-        // ...state,
         inputs: action.inputs,
         isValid: action.formIsValid,
       };
