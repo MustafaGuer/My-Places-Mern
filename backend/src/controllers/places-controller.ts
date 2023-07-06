@@ -24,20 +24,20 @@ const getPlaceById = (req: Request, res: Response, next: NextFunction) => {
     throw new HttpError("Could not find a place for the provided id!", 404);
   }
 
-  res.status(200).json({ place });
+  res.json({ place });
 };
 
-const getPlaceByUserId = (req: Request, res: Response, next: NextFunction) => {
+const getPlacesByUserId = (req: Request, res: Response, next: NextFunction) => {
   const userId = req.params.uid;
-  const place = DUMMY_PLACES.find((p) => p.creator === userId);
+  const places = DUMMY_PLACES.filter((p) => p.creator === userId);
 
-  if (!place) {
+  if (!places || places.length === 0) {
     return next(
-      new HttpError("Could not find a place for the provided user id!", 404)
+      new HttpError("Could not find places for the provided user id!", 404)
     );
   }
 
-  res.status(200).json({ place });
+  res.json({ places });
 };
 
 const postPlace = (req: Request, res: Response) => {
@@ -75,12 +75,12 @@ const deletePlace = (req: Request, res: Response) => {
 
   DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
 
-  res.status(200).json({ message: "Deleted place." });
+  res.json({ message: "Deleted place." });
 };
 
 export default {
   getPlaceById,
-  getPlaceByUserId,
+  getPlacesByUserId,
   postPlace,
   patchPlace,
   deletePlace,
