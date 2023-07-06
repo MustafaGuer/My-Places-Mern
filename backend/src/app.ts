@@ -10,6 +10,10 @@ app.use(json());
 
 app.use("/api/places", placesRoutes);
 
+app.use(() => {
+  throw new HttpError("Could not find this route.", 404);
+});
+
 app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) {
     return next(error);
