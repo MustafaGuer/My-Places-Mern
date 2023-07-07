@@ -1,55 +1,80 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
-import { v4 as uuidv4 } from "uuid";
+
 import HttpError from "../shared/models/http-error";
+import User from "../shared/models/user";
 
-const DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "John Doe",
-    email: "jdoe@foo.bar",
-    password: "testers",
-  },
-];
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  let users;
+  try {
+    users = await User.find({}, "-password");
+    // users = await User.find({}, 'email name');
+  } catch (error) {
+    return next(
+      new HttpError("Could not fetch users, please try again later.", 500)
+    );
+  }
 
-const getUsers = (req: Request, res: Response) => {
-  res.json({ users: DUMMY_USERS });
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
-const postSignup = (req: Request, res: Response) => {
+const postSignup = async (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid input passed, please check your data.", 422);
+    return new HttpError("Invalid input passed, please check your data.", 422);
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, password, places } = req.body;
 
-  const userExists = DUMMY_USERS.find((u) => u.email === email);
-
-  if (userExists) {
-    throw new HttpError("Could not create user, email already exists.", 422);
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (error) {
+    return next(
+      new HttpError("Signing up failed, please try again later.", 500)
+    );
   }
 
-  const createdUser = {
-    id: uuidv4(),
+  if (existingUser) {
+    return next(
+      new HttpError("User exists already, please login instead", 422)
+    );
+  }
+
+  const createdUser = new User({
     name,
     email,
     password,
-  };
+    avatar:
+      "https://www.thecakepalace.com.au/wp-content/uploads/2022/10/dummy-user.png",
+    places: places,
+  });
 
-  DUMMY_USERS.push(createdUser);
-  res.status(201).json({ user: createdUser });
+  try {
+    await createdUser.save();
+  } catch (error) {
+    return next(new HttpError("Signing up failed, please try again...", 500));
+  }
+
+  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-const postLogin = (req: Request, res: Response, next: NextFunction) => {
+const postLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
-  const user = DUMMY_USERS.find((u) => u.email === email);
-  if (!user || user.password !== password) {
-    throw new HttpError(
-      "Could not identify user, credentials seem to be wrong.",
-      401
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (error) {
+    return next(
+      new HttpError("Logging up failed, please try again later.", 500)
+    );
+  }
+
+  if (!existingUser || existingUser.password !== password) {
+    return next(
+      new HttpError("Invalid credentials, could not log you in.", 401)
     );
   }
 

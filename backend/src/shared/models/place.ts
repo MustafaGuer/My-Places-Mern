@@ -26,4 +26,6 @@ const placeSchema = new Schema<IPlace>({
   creator: { type: String, required: true },
 });
 
-export default model("Place", placeSchema);
+const Place = model<IPlace>("Place", placeSchema);
+
+export default Place;
