@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
-import HttpError from "../shared/model/http-error";
+import HttpError from "../shared/models/http-error";
 
 const DUMMY_USERS = [
   {

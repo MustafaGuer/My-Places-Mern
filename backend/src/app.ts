@@ -1,10 +1,11 @@
 import express, { NextFunction, Request, Response } from "express";
 import { json } from "body-parser";
+import { connect } from "mongoose";
 import "dotenv/config";
 
 import placesRoutes from "./routes/places-routes";
 import usersRoutes from "./routes/users-routes";
-import HttpError from "./shared/model/http-error";
+import HttpError from "./shared/models/http-error";
 
 const app = express();
 
@@ -25,4 +26,10 @@ app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
-app.listen(5000);
+connect(`${process.env.MONGODB_URI}`)
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });

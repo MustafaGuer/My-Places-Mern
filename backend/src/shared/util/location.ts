@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import HttpError from "../model/http-error";
+import HttpError from "../models/http-error";
 
 const getCoordsForAddress = async (address: string) => {
   // return {lat: 40.7484445, lng: -73.9882393}
