@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
 interface ILocation {
   lat: number;
@@ -11,7 +11,7 @@ interface IPlace {
   image: string;
   address: string;
   location: ILocation;
-  creator: string;
+  creator: Types.ObjectId;
 }
 
 const placeSchema = new Schema<IPlace>({
@@ -23,7 +23,7 @@ const placeSchema = new Schema<IPlace>({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },
-  creator: { type: String, required: true },
+  creator: { type: Schema.Types.ObjectId, required: true, ref: "User" },
 });
 
 const Place = model<IPlace>("Place", placeSchema);

@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { startSession } from "mongoose";
 import { validationResult } from "express-validator";
 
 import HttpError from "../shared/models/http-error";
 import getCoordsForAddress from "../shared/util/location";
 import Place from "../shared/models/place";
+import User from "../shared/models/user";
 
 const getPlaceById = async (
   req: Request,
@@ -15,7 +16,7 @@ const getPlaceById = async (
 
   let place;
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate("creator");
   } catch (error) {
     return next(
       new HttpError("Something went wrong, could not find a place.", 500)
@@ -40,7 +41,7 @@ const getPlacesByUserId = async (
 
   let places;
   try {
-    places = await Place.find({ creator: userId });
+    places = await Place.find({ creator: userId }).populate("creator");
   } catch (error) {
     return next(
       new HttpError("Fetching places failed, please try again later.", 500)
@@ -88,8 +89,24 @@ const postCreatePlace = async (
     creator,
   });
 
+  let user;
   try {
-    await createdPlace.save();
+    user = await User.findById(creator);
+  } catch (error) {
+    return next(new HttpError("Creating place failed, please try again", 500));
+  }
+
+  if (!user) {
+    return next(new HttpError("Could not find user for provided id.", 404));
+  }
+
+  try {
+    const session = await startSession();
+    session.startTransaction();
+    await createdPlace.save({ session: session });
+    user.places.push(createdPlace.id);
+    await user.save({ session: session });
+    await session.commitTransaction();
   } catch (error) {
     return next(new HttpError("Creating place failed, please try again", 500));
   }
@@ -141,12 +158,35 @@ const patchUpdatePlace = async (
 const deletePlace = async (req: Request, res: Response, next: NextFunction) => {
   const placeId = req.params.pid;
 
+  let place;
   try {
-    await Place.findByIdAndRemove(placeId);
+    place = await Place.findById(placeId).populate("creator");
   } catch (error) {
     return next(
       new HttpError("Something went wrong, could not delete place.", 500)
     );
+  }
+
+  if (!place) {
+    return next(new HttpError("Could not find place for this id.", 404));
+  }
+
+  try {
+    // const sess = await startSession();
+    // sess.startTransaction();
+    // await place.remove({ session: sess });
+    // place.creator.places.pull(place);
+    // await place.creator.save({ session: sess });
+    // await sess.commitTransaction();
+    await Place.findByIdAndRemove(placeId);
+    const userId = place.creator.id;
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { places: placeId } },
+      { new: true }
+    );
+  } catch (error) {
+    new HttpError("Something went wrong, could not delete place.", 500);
   }
 
   res.json({ message: "Deleted place." });

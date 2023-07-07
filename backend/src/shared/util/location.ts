@@ -3,7 +3,6 @@ import axios from "axios";
 import HttpError from "../models/http-error";
 
 const getCoordsForAddress = async (address: string) => {
-  // return {lat: 40.7484445, lng: -73.9882393}
   const response = await axios(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address

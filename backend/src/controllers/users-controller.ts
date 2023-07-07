@@ -25,7 +25,7 @@ const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     return new HttpError("Invalid input passed, please check your data.", 422);
   }
 
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
   try {
@@ -48,7 +48,7 @@ const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     password,
     avatar:
       "https://www.thecakepalace.com.au/wp-content/uploads/2022/10/dummy-user.png",
-    places: places,
+    places: [],
   });
 
   try {
