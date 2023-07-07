@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import { json } from "body-parser";
+import "dotenv/config";
 
 import placesRoutes from "./routes/places-routes";
 import usersRoutes from "./routes/users-routes";

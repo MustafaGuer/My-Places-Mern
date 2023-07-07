@@ -3,8 +3,24 @@ import { v4 as uuidv4 } from "uuid";
 import { validationResult } from "express-validator";
 
 import HttpError from "../shared/model/http-error";
+import getCoordsForAddress from "../shared/util/location";
 
-let DUMMY_PLACES = [
+interface LatLng {
+  lat: number;
+  lng: number;
+}
+
+interface Place {
+  id: string;
+  title: string;
+  description: string;
+  address: string;
+  creator: string;
+  imageUrl: string;
+  location: LatLng;
+}
+
+let DUMMY_PLACES: Place[] = [
   {
     id: "p1",
     title: "Empire State Building",
@@ -41,20 +57,33 @@ const getPlacesByUserId = (req: Request, res: Response, next: NextFunction) => {
   res.json({ places });
 };
 
-const postPlace = (req: Request, res: Response) => {
+const postCreatePlace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
   }
 
-  const { title, description, coordinates, address, creator } = req.body;
+  const { title, description, address, creator } = req.body;
 
-  const newPlace = {
+  let coordinatesFromGoogle;
+  try {
+    coordinatesFromGoogle = await getCoordsForAddress(address);
+  } catch (error) {
+    return next(error);
+  }
+
+  const newPlace: Place = {
     id: uuidv4(),
     title,
     description,
-    location: coordinates,
+    location: coordinatesFromGoogle,
     address,
     creator,
     imageUrl:
@@ -66,7 +95,7 @@ const postPlace = (req: Request, res: Response) => {
   res.status(201).json({ place: newPlace });
 };
 
-const patchPlace = (req: Request, res: Response) => {
+const patchUpdatePlace = (req: Request, res: Response) => {
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
@@ -93,7 +122,7 @@ const deletePlace = (req: Request, res: Response) => {
 export default {
   getPlaceById,
   getPlacesByUserId,
-  postPlace,
-  patchPlace,
+  postCreatePlace,
+  patchUpdatePlace,
   deletePlace,
 };
