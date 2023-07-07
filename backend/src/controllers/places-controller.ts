@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { validationResult } from "express-validator";
 
 import HttpError from "../shared/model/http-error";
 
@@ -41,6 +42,12 @@ const getPlacesByUserId = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const postPlace = (req: Request, res: Response) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+  }
+
   const { title, description, coordinates, address, creator } = req.body;
 
   const newPlace = {
@@ -72,6 +79,11 @@ const patchPlace = (req: Request, res: Response) => {
 
 const deletePlace = (req: Request, res: Response) => {
   const placeId = req.params.pid;
+
+  const place = DUMMY_PLACES.find((p) => p.id === placeId);
+  if (!place) {
+    throw new HttpError("Could not find a place for the provided id!", 404);
+  }
 
   DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
 

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { check } from "express-validator";
 
 import placesController from "../controllers/places-controller";
 
@@ -8,9 +9,21 @@ router.get("/:pid", placesController.getPlaceById);
 
 router.get("/user/:uid", placesController.getPlacesByUserId);
 
-router.post("/", placesController.postPlace);
+router.post(
+  "/",
+  [
+    check("title").not().isEmpty(),
+    check("description").isLength({ min: 5 }),
+    check("address").not().isEmpty(),
+  ],
+  placesController.postPlace
+);
 
-router.patch("/:pid", placesController.patchPlace);
+router.patch(
+  "/:pid",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  placesController.patchPlace
+);
 
 router.delete("/:pid", placesController.deletePlace);
 
