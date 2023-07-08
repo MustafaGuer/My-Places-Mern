@@ -1,3 +1,5 @@
+import User from "./User";
+
 export type Coordinates = {
   lat: number;
   lng: number;
@@ -9,7 +11,7 @@ interface Place {
   title: string;
   description: string;
   address: string;
-  creator: string;
+  creator: User;
   location: Coordinates;
 }
 

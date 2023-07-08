@@ -5,7 +5,10 @@ import Card from "../../shared/components/UIElements/Card";
 import Button from "../../shared/components/FormElements/Button";
 import Modal from "../../shared/components/UIElements/Modal";
 import Map from "../../shared/components/UIElements/Map";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { AuthContext, AuthContextT } from "../../shared/context/auth-context";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import styles from "./PlaceItem.module.scss";
 
 const PlaceItem: React.FC<{
@@ -16,8 +19,10 @@ const PlaceItem: React.FC<{
   address: string;
   creator: string;
   coordinates: Coordinates;
+  onDelete: (pid: string) => void;
 }> = (props) => {
   const authCtx = useContext<AuthContextT>(AuthContext);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [showMap, setShowMap] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -32,13 +37,20 @@ const PlaceItem: React.FC<{
     []
   );
 
-  const confirmDeleteHandler = useCallback(() => {
+  const confirmDeleteHandler = async () => {
     setShowConfirm(false);
-    console.log("DELETING...");
-  }, []);
+    try {
+      await sendRequest(
+        `http://localhost:5000/api/places/${props.id}`,
+        "DELETE"
+      );
+      props.onDelete(props.id);
+    } catch (error) {}
+  };
 
   return (
     <>
+      <ErrorModal error={error} onClear={clearError} />
       <Modal
         show={showMap}
         onCancel={closeMapHandler}
@@ -74,6 +86,7 @@ const PlaceItem: React.FC<{
       </Modal>
       <li className={styles["place-item"]}>
         <Card className={styles["place-item__content"]}>
+          {isLoading && <LoadingSpinner asOverlay />}
           <div className={styles["place-item__image"]}>
             <img src={props.image} alt={props.title} />
           </div>
@@ -86,10 +99,10 @@ const PlaceItem: React.FC<{
             <Button onClick={openMapHandler} inverse>
               VIEW ON MAP
             </Button>
-            {authCtx.isLoggedIn && (
+            {authCtx.userId === props.creator && (
               <Button to={`/places/${props.id}`}>EDIT</Button>
             )}
-            {authCtx.isLoggedIn && (
+            {authCtx.userId === props.creator && (
               <Button danger onClick={showDeleteWarningHandler}>
                 DELETE
               </Button>

@@ -6,7 +6,10 @@ import PlaceItem from "./PlaceItem";
 import Place from "../../shared/models/Place";
 import styles from "./PlaceList.module.scss";
 
-const PlaceList: React.FC<{ items?: Place[] }> = (props) => {
+const PlaceList: React.FC<{
+  items?: Place[];
+  onDeletePlace: (pid: string) => void;
+}> = (props) => {
   if (props.items?.length === 0) {
     return (
       <div className={`${styles["place-list"]} center`}>
@@ -28,8 +31,9 @@ const PlaceList: React.FC<{ items?: Place[] }> = (props) => {
           title={place.title}
           description={place.description}
           address={place.address}
-          creator={place.creator}
+          creator={place.creator.id}
           coordinates={place.location}
+          onDelete={props.onDeletePlace}
         />
       ))}
     </ul>

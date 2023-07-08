@@ -17,7 +17,10 @@ const NavLinks: React.FC<{}> = (props) => {
       </li>
       {authCtx.isLoggedIn && (
         <li>
-          <NavLink to="/u1/places" activeClassName={styles.active}>
+          <NavLink
+            to={`/${authCtx.userId}/places`}
+            activeClassName={styles.active}
+          >
             MY PLACES
           </NavLink>
         </li>
