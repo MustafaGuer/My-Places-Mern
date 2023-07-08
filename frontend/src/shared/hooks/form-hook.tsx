@@ -33,8 +33,9 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       let formIsValid = true;
 
       for (const inputId in state.inputs) {
+        // FIXME: if user switches to signup fill name and switch back to login, input validation -> form validation failed because name is now required
         if (state.inputs[inputId].value === "") {
-          state.inputs[inputId].isValid = true;
+          state.inputs[inputId].isValid = false;
         }
         if (inputId === action.inputId) {
           formIsValid = formIsValid && action.isValid;
