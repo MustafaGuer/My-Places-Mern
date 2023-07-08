@@ -172,12 +172,6 @@ const deletePlace = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    // const sess = await startSession();
-    // sess.startTransaction();
-    // await place.remove({ session: sess });
-    // place.creator.places.pull(place);
-    // await place.creator.save({ session: sess });
-    // await sess.commitTransaction();
     await Place.findByIdAndRemove(placeId);
     const userId = place.creator.id;
     await User.findByIdAndUpdate(
