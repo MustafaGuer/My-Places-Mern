@@ -9,7 +9,7 @@ import styles from "./UserItem.module.scss";
 const UserItem: React.FC<{
   id: string;
   name: string;
-  image: string;
+  avatar: string;
   placeCount: number;
 }> = (props) => {
   return (
@@ -17,7 +17,7 @@ const UserItem: React.FC<{
       <Card className="p-0">
         <Link to={`/${props.id}/places`}>
           <div className={styles["user-item__image"]}>
-            <Avatar image={props.image} alt={props.name} />
+            <Avatar avatar={props.avatar} alt={props.name} />
           </div>
           <div className={styles["user-item__info"]}>
             <h2>{props.name}</h2>

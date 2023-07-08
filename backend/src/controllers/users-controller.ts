@@ -78,7 +78,10 @@ const postLogin = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  res.json({ message: "Logged in!" });
+  res.json({
+    message: "Logged in!",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 export default { getUsers, postSignup, postLogin };

@@ -1,8 +1,8 @@
 import React from "react";
 
 import UserItem from "./UserItem";
-import Card from "../../shared/components/UIElements/Card";
 import User from "../../shared/models/User";
+import Card from "../../shared/components/UIElements/Card";
 import styles from "./UsersList.module.scss";
 
 const UsersList: React.FC<{ items: Array<User> }> = (props) => {
@@ -23,9 +23,9 @@ const UsersList: React.FC<{ items: Array<User> }> = (props) => {
           <UserItem
             key={user.id}
             id={user.id}
-            image={user.image}
+            avatar={user.avatar}
             name={user.name}
-            placeCount={user.places}
+            placeCount={user.places.length}
           />
         );
       })}

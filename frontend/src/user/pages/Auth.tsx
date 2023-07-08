@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { useForm } from "../../shared/hooks/form-hook";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext, AuthContextT } from "../../shared/context/auth-context";
 import {
   VALIDATOR_EMAIL,
@@ -17,8 +18,7 @@ import styles from "./Auth.module.scss";
 const Auth = () => {
   const authCtx = useContext<AuthContextT>(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -67,63 +67,42 @@ const Auth = () => {
 
   const authSubmitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
 
     if (isLoginMode) {
       try {
-        const response = await fetch("http://localhost:5000/api/users/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const responseData = await sendRequest(
+          "http://localhost:5000/api/users/login",
+          "POST",
+          JSON.stringify({
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
+          { "Content-Type": "application/json" }
+        );
 
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
-        authCtx.login();
-      } catch (error: any) {
-        setIsLoading(false);
-        setError(error.message || "Something went wrong, please try again.");
-      }
+        authCtx.login(responseData.user.id);
+      } catch (err) {}
     } else {
       try {
-        const response = await fetch("http://localhost:5000/api/users/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const responseData = await sendRequest(
+          "http://localhost:5000/api/users/signup",
+          "POST",
+          JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
+          { "Content-Type": "application/json" }
+        );
 
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
-        authCtx.login();
-      } catch (error: any) {
-        setIsLoading(false);
-        setError(error.message || "Something went wrong, please try again.");
-      }
+        authCtx.login(responseData.user.id);
+      } catch (err) {}
     }
   };
 
-  const errorHandler = useCallback(() => {
-    setError("");
-  }, []);
-
   return (
     <>
-      <ErrorModal error={error} onClear={errorHandler}></ErrorModal>
+      <ErrorModal error={error} onClear={clearError}></ErrorModal>
       <Card className={styles.authentication}>
         {isLoading && <LoadingSpinner asOverlay></LoadingSpinner>}
         <h2>{isLoginMode ? "Login" : "Register"} Required</h2>

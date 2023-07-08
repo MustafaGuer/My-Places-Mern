@@ -5,14 +5,14 @@ import styles from "./Avatar.module.scss";
 const Avatar: React.FC<{
   className?: string;
   style?: React.CSSProperties;
-  image: string;
+  avatar: string;
   alt: string;
   width?: string;
 }> = (props) => {
   return (
     <div className={`${styles.avatar} ${props.className}`} style={props.style}>
       <img
-        src={props.image}
+        src={props.avatar}
         alt={props.alt}
         style={{ width: props.width, height: props.width }}
       />

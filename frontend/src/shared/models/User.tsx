@@ -1,8 +1,8 @@
 interface User {
   id: string;
   name: string;
-  image: string;
-  places: number;
+  avatar: string;
+  places: [];
 }
 
 export default User;
