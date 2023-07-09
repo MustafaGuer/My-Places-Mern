@@ -13,6 +13,7 @@ import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import styles from "./Auth.module.scss";
 
 const Auth = () => {
@@ -40,12 +41,12 @@ const Auth = () => {
         {
           inputs: {
             ...formState.inputs,
-            name: { value: "", isValid: false },
-            // name: undefined,
+            name: undefined,
+            image: undefined,
           },
         },
-        (formState.inputs.email.isValid as boolean) &&
-          (formState.inputs.password.isValid as boolean)
+        (formState.inputs.email!.isValid as boolean) &&
+          (formState.inputs.password!.isValid as boolean)
       );
     } else {
       setFormData(
@@ -54,6 +55,10 @@ const Auth = () => {
             ...formState.inputs,
             name: {
               value: "",
+              isValid: false,
+            },
+            image: {
+              value: null,
               isValid: false,
             },
           },
@@ -68,14 +73,16 @@ const Auth = () => {
   const authSubmitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    console.log(formState.inputs);
+
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
           "http://localhost:5000/api/users/login",
           "POST",
           JSON.stringify({
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
+            email: formState.inputs.email!.value,
+            password: formState.inputs.password!.value,
           }),
           { "Content-Type": "application/json" }
         );
@@ -88,9 +95,9 @@ const Auth = () => {
           "http://localhost:5000/api/users/signup",
           "POST",
           JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
+            name: formState.inputs.name!.value,
+            email: formState.inputs.email!.value,
+            password: formState.inputs.password!.value,
           }),
           { "Content-Type": "application/json" }
         );
@@ -116,6 +123,14 @@ const Auth = () => {
               validators={[VALIDATOR_REQUIRE()]}
               errorText="Please enter a name."
               onInput={inputHandler}
+            />
+          )}
+          {!isLoginMode && (
+            <ImageUpload
+              id="image"
+              center
+              onInput={inputHandler}
+              errorText="Picked image is not valid format."
             />
           )}
           <Input

@@ -42,9 +42,9 @@ const NewPlace = () => {
         "http://localhost:5000/api/places",
         "POST",
         JSON.stringify({
-          title: formState.inputs.title.value,
-          description: formState.inputs.description.value,
-          address: formState.inputs.address.value,
+          title: formState.inputs.title!.value,
+          description: formState.inputs.description!.value,
+          address: formState.inputs.address!.value,
           creator: authCtx.userId,
         }),
         { "Content-Type": "application/json" }

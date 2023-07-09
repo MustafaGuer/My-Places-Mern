@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from "react";
 
 import { Validator, validate } from "../../util/validators";
-import styles from "./Input.module.scss";
+import styles from "./FormElements.module.scss";
 
 enum ACTION_TYPES {
   CHANGE = "CHANGE",

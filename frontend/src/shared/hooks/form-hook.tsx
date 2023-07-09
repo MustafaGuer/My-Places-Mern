@@ -1,12 +1,12 @@
 import { useCallback, useReducer } from "react";
 
 type InputType = {
-  value: string;
+  value: string | File | null;
   isValid: boolean;
 };
 
 type InputState = {
-  [key: string]: InputType;
+  [key: string]: InputType | undefined;
 };
 
 type FormState = {
@@ -19,7 +19,7 @@ type FormAction =
       type: "INPUT_CHANGE";
       inputId: string;
       isValid: boolean;
-      value: string;
+      value: string | File;
     }
   | {
       type: "SET_DATA";
@@ -33,9 +33,8 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       let formIsValid = true;
 
       for (const inputId in state.inputs) {
-        // FIXME: if user switches to signup fill name and switch back to login, input validation -> form validation failed because name is now required
-        if (state.inputs[inputId].value === "") {
-          state.inputs[inputId].isValid = false;
+        if (!state.inputs[inputId]) {
+          continue;
         }
         if (inputId === action.inputId) {
           formIsValid = formIsValid && action.isValid;
@@ -80,7 +79,7 @@ export const useForm = (
   initialFormValidity: boolean
 ): [
   FormState,
-  (id: string, value: string, isValid: boolean) => void,
+  (id: string, value: string | File, isValid: boolean) => void,
   (inputData: { inputs: InputState }, formValidity: boolean) => void
 ] => {
   const [formState, dispatch] = useReducer(
@@ -97,7 +96,7 @@ export const useForm = (
   }, []);
 
   const inputHandler = useCallback(
-    (id: string, value: string, isValid: boolean) => {
+    (id: string, value: string | File, isValid: boolean) => {
       dispatch({
         type: "INPUT_CHANGE",
         value: value,
