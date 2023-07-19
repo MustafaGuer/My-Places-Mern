@@ -23,7 +23,7 @@ const UsersList: React.FC<{ items: Array<User> }> = (props) => {
           <UserItem
             key={user.id}
             id={user.id}
-            avatar={user.avatar}
+            image={user.image}
             name={user.name}
             placeCount={user.places.length}
           />

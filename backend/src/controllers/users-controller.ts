@@ -46,8 +46,7 @@ const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     name,
     email,
     password,
-    avatar:
-      "https://www.thecakepalace.com.au/wp-content/uploads/2022/10/dummy-user.png",
+    image: req.file!.path,
     places: [],
   });
 

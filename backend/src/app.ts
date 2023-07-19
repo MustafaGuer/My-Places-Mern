@@ -1,3 +1,4 @@
+import fs from "fs";
 import express, { NextFunction, Request, Response } from "express";
 import { json } from "body-parser";
 import { connect } from "mongoose";
@@ -14,13 +15,11 @@ app.use(json());
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
     "Access-Control-Allow-Headers",
-    "Content-Type, Origin, X-Requested-With, Accept, Authorization"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+
   next();
 });
 
@@ -32,6 +31,11 @@ app.use(() => {
 });
 
 app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
   if (res.headersSent) {
     return next(error);
   }
