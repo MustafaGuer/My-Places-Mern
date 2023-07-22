@@ -7,6 +7,7 @@ import HttpError from "../shared/models/http-error";
 import getCoordsForAddress from "../shared/util/location";
 import Place from "../shared/models/place";
 import User from "../shared/models/user";
+import { CustomRequest } from "../../custom";
 
 const getPlaceById = async (
   req: Request,
@@ -115,7 +116,7 @@ const postCreatePlace = async (
 };
 
 const patchUpdatePlace = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -137,13 +138,20 @@ const patchUpdatePlace = async (
       new HttpError("Updating place failed, please try again later.", 500)
     );
   }
+
   if (!place) {
     return next(
       new HttpError("Could not find place data, please try again later", 500)
     );
   }
+
+  if (place.creator.toString() !== req.userData!.userId) {
+    return next(new HttpError("You are not allowed to edit this place.", 401));
+  }
+
   place.title = title;
   place.description = description;
+
   try {
     await place.save();
   } catch (error) {
@@ -155,7 +163,11 @@ const patchUpdatePlace = async (
   res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
-const deletePlace = async (req: Request, res: Response, next: NextFunction) => {
+const deletePlace = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const placeId = req.params.pid;
 
   let place;
@@ -169,6 +181,12 @@ const deletePlace = async (req: Request, res: Response, next: NextFunction) => {
 
   if (!place) {
     return next(new HttpError("Could not find place for this id.", 404));
+  }
+
+  if (place.creator.toString() !== req.userData!.userId) {
+    return next(
+      new HttpError("You are not allowed to delete this place.", 401)
+    );
   }
 
   const imagePath = place.image;
