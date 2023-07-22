@@ -130,7 +130,7 @@ const Auth = () => {
               id="image"
               center
               onInput={inputHandler}
-              errorText="Picked image is not valid format."
+              errorText="Please provide an image."
             />
           )}
           <Input

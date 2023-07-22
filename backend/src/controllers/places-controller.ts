@@ -1,3 +1,4 @@
+import fs from "fs";
 import { Request, Response, NextFunction } from "express";
 import { startSession } from "mongoose";
 import { validationResult } from "express-validator";
@@ -82,8 +83,7 @@ const postCreatePlace = async (
   const createdPlace = new Place({
     title,
     description,
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg",
+    image: req.file?.path,
     address,
     location: coordinatesFromGoogle,
     creator,
@@ -171,6 +171,8 @@ const deletePlace = async (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError("Could not find place for this id.", 404));
   }
 
+  const imagePath = place.image;
+
   try {
     await Place.findByIdAndRemove(placeId);
     const userId = place.creator.id;
@@ -182,6 +184,10 @@ const deletePlace = async (req: Request, res: Response, next: NextFunction) => {
   } catch (error) {
     new HttpError("Something went wrong, could not delete place.", 500);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
 
   res.json({ message: "Deleted place." });
 };

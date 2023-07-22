@@ -46,7 +46,7 @@ const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     name,
     email,
     password,
-    image: req.file!.path,
+    image: req.file?.path,
     places: [],
   });
 
