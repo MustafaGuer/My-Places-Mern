@@ -1,5 +1,7 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import HttpError from "../shared/models/http-error";
 import User from "../shared/models/user";
@@ -42,10 +44,17 @@ const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
+  let hashedPw;
+  try {
+    hashedPw = await bcrypt.hash(password, 12);
+  } catch (error) {
+    return next(new HttpError("Could not create user, please try again.", 500));
+  }
+
   const createdUser = new User({
     name,
     email,
-    password,
+    password: hashedPw,
     image: req.file?.path,
     places: [],
   });
@@ -56,7 +65,20 @@ const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError("Signing up failed, please try again...", 500));
   }
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      `${process.env.JWT_SECRET}`,
+      { expiresIn: "1h" }
+    );
+  } catch (error) {
+    return next(new HttpError("Signing up failed, please try again...", 500));
+  }
+
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token });
 };
 
 const postLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -71,15 +93,53 @@ const postLogin = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  if (!existingUser || existingUser.password !== password) {
+  if (!existingUser) {
     return next(
       new HttpError("Invalid credentials, could not log you in.", 401)
     );
   }
 
+  let isValidPw = false;
+  try {
+    isValidPw = await bcrypt.compare(password, existingUser.password);
+  } catch (error) {
+    return next(
+      new HttpError(
+        "Could not log you in, please check your credentials and try again.",
+        500
+      )
+    );
+  }
+
+  if (!isValidPw) {
+    return next(
+      new HttpError(
+        "Could not log you in, please check your credentials and try again.",
+        401
+      )
+    );
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: existingUser.id, email: existingUser.email },
+      `${process.env.JWT_SECRET}`,
+      { expiresIn: "1h" }
+    );
+  } catch (error) {
+    return next(
+      new HttpError(
+        "Could not log you in, please check your credentials and try again.",
+        401
+      )
+    );
+  }
+
   res.json({
-    message: "Logged in!",
-    user: existingUser.toObject({ getters: true }),
+    userId: existingUser.id,
+    email: existingUser.email,
+    token,
   });
 };
 

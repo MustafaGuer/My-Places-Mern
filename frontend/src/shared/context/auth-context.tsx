@@ -2,14 +2,16 @@ import { createContext } from "react";
 
 export type AuthContextT = {
   isLoggedIn: boolean;
-  login: (uid: string) => void;
-  logout: () => void;
   userId: string | null;
+  token: string | null;
+  login: (uid: string, token: string) => void;
+  logout: () => void;
 };
 
 export const AuthContext = createContext<AuthContextT>({
   isLoggedIn: false,
   userId: null,
-  login: (uid: string) => {},
+  token: null,
+  login: (uid: string, token: string) => {},
   logout: () => {},
 });
