@@ -115,7 +115,7 @@ const postLogin = async (req: Request, res: Response, next: NextFunction) => {
     return next(
       new HttpError(
         "Could not log you in, please check your credentials and try again.",
-        401
+        403
       )
     );
   }
@@ -131,7 +131,7 @@ const postLogin = async (req: Request, res: Response, next: NextFunction) => {
     return next(
       new HttpError(
         "Could not log you in, please check your credentials and try again.",
-        401
+        403
       )
     );
   }

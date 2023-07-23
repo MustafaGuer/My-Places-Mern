@@ -60,7 +60,7 @@ const getPlacesByUserId = async (
 };
 
 const postCreatePlace = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -72,7 +72,7 @@ const postCreatePlace = async (
     );
   }
 
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
 
   let coordinatesFromGoogle;
   try {
@@ -87,12 +87,12 @@ const postCreatePlace = async (
     image: req.file?.path,
     address,
     location: coordinatesFromGoogle,
-    creator,
+    creator: req.userData!.userId,
   });
 
   let user;
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData!.userId);
   } catch (error) {
     return next(new HttpError("Creating place failed, please try again", 500));
   }
@@ -183,7 +183,7 @@ const deletePlace = async (
     return next(new HttpError("Could not find place for this id.", 404));
   }
 
-  if (place.creator.toString() !== req.userData!.userId) {
+  if (place.creator.id.toString() !== req.userData!.userId) {
     return next(
       new HttpError("You are not allowed to delete this place.", 401)
     );

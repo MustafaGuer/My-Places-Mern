@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import HttpError from "../models/http-error";
@@ -20,6 +20,6 @@ export default (req: CustomRequest, res: Response, next: NextFunction) => {
     req.userData = { userId: decodedToken.userId };
     next();
   } catch (error) {
-    return next(new HttpError("Authentication failed!", 401));
+    return next(new HttpError("Authentication failed!", 403));
   }
 };
